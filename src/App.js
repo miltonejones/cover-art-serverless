@@ -20,7 +20,7 @@ import {
 
 import { Close, MoreVert } from '@mui/icons-material';
 const endpoint = "https://58uf2seho0.execute-api.us-east-1.amazonaws.com/"
-const blogpoint = "https://6as41g1bz3.execute-api.us-east-1.amazonaws.com/"
+const sitepoint = "https://6as41g1bz3.execute-api.us-east-1.amazonaws.com/"
 
 
 
@@ -53,7 +53,7 @@ const getBlogPost = async (address) => {
   };
 
   // send POST request
-  const response = await fetch(blogpoint, requestOptions);
+  const response = await fetch(sitepoint, requestOptions);
   try {
     return await response.json();
 
@@ -265,9 +265,7 @@ function App() {
           <IconButton onClick={() => setState(s => ({...s, properties: []}))}>
             <Close />
           </IconButton>
-        </Box>)}
-
- 
+        </Box>)} 
 
         </Stack>
 
