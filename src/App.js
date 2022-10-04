@@ -94,7 +94,8 @@ const BlogPostInfo = ({properties}) => {
   const site_name = properties.find(p =>  p.name === 'og:site_name');
   const author = properties.find(p =>  p.name === 'twitter:data1');
  
-  return (<Stack>
+  return (<Card sx={{p: 2, m: 4, width: 640}}>
+    <Stack>
       <Stack direction="row" spacing={2}>
         {!!image && <img style={{width: 160, height: 90}} src={image.content} alt="blog" />}
         <Stack>
@@ -114,7 +115,8 @@ const BlogPostInfo = ({properties}) => {
         </Stack>}
           
       </Stack>
-    </Stack>)
+    </Stack>
+  </Card>)
 }
 
 function CacheMenu ({ open , anchorEl, handleClose, cache, onChoose}) {
@@ -184,7 +186,7 @@ function App() {
 
   return (
     <div style={{ cursor, width: '100vw'}}>
-      <Card elevation={6} sx={sx}>
+      <Card elevation={photos.length ? 6 : 2}  sx={sx}>
         <Stack>
         <Stack direction="row" spacing={2}>
 
@@ -248,8 +250,9 @@ function App() {
         </Stack>
       </Card>
 
+      {!!properties.length && <BlogPostInfo properties={properties} />}
 
-      <Card elevation={6} sx={sx}>
+      <Card elevation={properties.length ? 6 : 2} sx={sx}>
       <Stack direction="row" spacing={2}>
 
         <Box>
@@ -272,7 +275,6 @@ function App() {
         <Divider style={{ width: '100%' }} />
        
        <Box sx={{mt: 2}}>
-       <BlogPostInfo properties={properties} />
         <TextField 
             autoFocus
             size="small"
