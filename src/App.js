@@ -56,13 +56,10 @@ const getBlogPost = async (address) => {
   const response = await fetch(sitepoint, requestOptions);
   try {
     return await response.json();
-
   } catch (message) {
     return { message }
   }
 }
-    
-
 
 const Image = styled('img')(({ theme }) => ({
   width: 180,
@@ -85,7 +82,7 @@ const Underline = styled('u')(({ theme }) => ({
 }));
 
 
-const BlogPostInfo = ({properties}) => {
+const BlogPostInfo = ({ properties, address }) => {
 
   if (!properties) return <i />
   const image = properties.find(p =>  p.name === 'og:image');
@@ -93,13 +90,14 @@ const BlogPostInfo = ({properties}) => {
   const description = properties.find(p =>  p.name === 'description');
   const site_name = properties.find(p =>  p.name === 'og:site_name');
   const author = properties.find(p =>  p.name === 'twitter:data1');
+  const reading_time = properties.find(p =>  p.name === 'twitter:data2');
  
   return (<Card sx={{p: 2, m: 4, width: 640}}>
     <Stack>
       <Stack direction="row" spacing={2}>
         {!!image && <img style={{width: 160, height: 90}} src={image.content} alt="blog" />}
         <Stack>
-         {!!title &&  <Typography variant="h6">{title.content}</Typography>}
+         {!!title && <Typography variant="h6"><a rel="noreferrer"target="_blank" href={address}>{title.content}</a></Typography>}
           {!!description && <Typography variant="subitle1">{description.content}</Typography>}
         </Stack>
       </Stack>
@@ -107,6 +105,8 @@ const BlogPostInfo = ({properties}) => {
         {!!site_name && <Stack>
           <Typography variant="body2">Site Name</Typography>
           <Typography variant="caption">{site_name.content}</Typography>
+          {!!reading_time && <><Typography variant="body2">Reading time</Typography>
+          <Typography variant="caption">{reading_time.content}</Typography></>}
         </Stack>}
           <Box sx={{flexGrow: 1}} />
         {!!author && <Stack>
@@ -120,8 +120,6 @@ const BlogPostInfo = ({properties}) => {
 }
 
 function CacheMenu ({ open , anchorEl, handleClose, cache, onChoose}) {
-
-
   return (<Menu
     id="basic-menu"
     open={open}
@@ -136,7 +134,6 @@ function CacheMenu ({ open , anchorEl, handleClose, cache, onChoose}) {
       onChoose && onChoose(c)  
     }}>{c}</MenuItem>)} 
   </Menu>)
-
 }
 
 
@@ -181,44 +178,48 @@ function App() {
   }
 
 
-  const sx = { transition: 'width 0.2s linear', m: 4, p: 2, width: photos.length || properties.length ? 640 : 340, cursor }
+  const sx = { 
+    transition: 'width 0.2s linear', 
+    m: 4, 
+    p: 2, 
+    width: photos.length || properties.length ? 640 : 340, 
+    cursor 
+  };
 
 
   return (
     <div style={{ cursor, width: '100vw'}}>
       <Card elevation={photos.length ? 6 : 2}  sx={sx}>
         <Stack>
-        <Stack direction="row" spacing={2}>
+          <Stack direction="row" spacing={2}>
+            <Box>
+              <Typography>{!!photos.length ? `Photos for "${artist}"` : "Get Cover Art"}</Typography>
+              <Typography variant="caption">
+                Enter artist name and click 'Get Photos'
+              </Typography>
+            </Box>
 
-          <Box>
-            <Typography>{!!photos.length ? `Photos for "${artist}"` : "Get Cover Art"}</Typography>
-            <Typography variant="caption">
-              Enter artist name and click 'Get Photos'
-            </Typography>
-          </Box>
-
-          <Box sx={{flexGrow: 1}} />
-          
-          {!!photos.length && (<Box>
-            <IconButton onClick={() => setState(s => ({...s, artist: '', photos: []}))}>
-              <Close />
-            </IconButton>
-           </Box>)}
+            <Box sx={{flexGrow: 1}} />
+            
+            {!!photos.length && (<Box>
+              <IconButton onClick={() => setState(s => ({...s, artist: '', photos: []}))}>
+                <Close />
+              </IconButton>
+            </Box>)}
 
 
-           {!photos.length && !!cache.length && <IconButton onClick={handleClick}>
-              <MoreVert />
-            </IconButton>}
+            {!photos.length && !!cache.length && <Box><IconButton onClick={handleClick}>
+                <MoreVert />
+              </IconButton></Box>}
 
-           {<CacheMenu  {...menuProps}/>}
-
-        </Stack>
+            {<CacheMenu  {...menuProps}/>}
+          </Stack>
 
           <Divider style={{ width: '100%' }} />
 
           <Box>
             {!!photos.map &&
-              photos.map((p, i) => <a href={p.src}  rel="noreferrer"target="_blank"><Image  key={i} src={p.src} /></a>)}
+              photos.map((p, i) => <a href={p.src} rel="noreferrer"target="_blank"><Image  key={i} src={p.src} /></a>)}
           </Box>
 
           {!!photos.message && <Alert sx={{mt: 2, mb: 2 }} severity="error">
@@ -240,7 +241,7 @@ function App() {
           <Divider style={{ width: '100%' }} />
 
           <Button
-          disabled={cursor === 'progress' || !artist.length}
+            disabled={cursor === 'progress' || !artist.length}
             sx={{ mt: 2, cursor }}
             onClick={() => getPhoto(artist)}
             variant="contained"
@@ -250,51 +251,48 @@ function App() {
         </Stack>
       </Card>
 
-      {!!properties.length && <BlogPostInfo properties={properties} />}
+      {!!properties.length && <BlogPostInfo address={address} properties={properties} />}
 
       <Card elevation={properties.length ? 6 : 2} sx={sx}>
-      <Stack direction="row" spacing={2}>
+        <Stack direction="row" spacing={2}>
+          <Box>
+            <Typography>Get Site Metadata</Typography>
+            <Typography variant="caption">
+              Enter Site URL and press 'Enter'
+            </Typography>
+          </Box>
 
-        <Box>
-          <Typography>Get Site Metadata</Typography>
-          <Typography variant="caption">
-            Enter Site URL and press 'Enter'
-          </Typography>
-        </Box>
+          <Box sx={{flexGrow: 1}} />
 
-        <Box sx={{flexGrow: 1}} />
-
-        {!!properties.length && (<Box>
-          <IconButton onClick={() => setState(s => ({...s, properties: []}))}>
-            <Close />
-          </IconButton>
-        </Box>)} 
-
+          {!!properties.length && (<Box>
+            <IconButton onClick={() => setState(s => ({...s, properties: []}))}>
+              <Close />
+            </IconButton>
+          </Box>)} 
         </Stack>
 
         <Divider style={{ width: '100%' }} />
        
-       <Box sx={{mt: 2}}>
-        <TextField 
-            autoFocus
-            size="small"
-            sx={{ mt: 2, mb: 2 , cursor}}
-            onKeyUp={e => e.keyCode === 13 && getPost(address)}
-            onChange={(e) => setState({ ...state, address: e.target.value })}
-            placeholder="Site URL"
-            label="Enter web address"
-            fullWidth
-            value={address}/>
+        <Box sx={{mt: 2}}>
+          <TextField 
+              autoFocus
+              size="small"
+              sx={{ mt: 2, mb: 2 , cursor}}
+              onKeyUp={e => e.keyCode === 13 && getPost(address)}
+              onChange={(e) => setState({ ...state, address: e.target.value })}
+              placeholder="Site URL"
+              label="Enter web address"
+              fullWidth
+              value={address}/>
 
-      <pre>
-          {JSON.stringify(properties,0,2)}
-        </pre>
-       </Box>
-         
+          {!!properties.length && <pre>
+            {JSON.stringify(properties,0,2)}
+          </pre>}
+        </Box>
       </Card>
  
      {!!photos.length && (<Card sx={{...sx, overflow: 'hidden'}}>
-            <Typography> JSON</Typography>
+        <Typography> JSON</Typography>
         <pre>
           {JSON.stringify(photos,0,2)}
         </pre>
